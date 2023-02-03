@@ -1,0 +1,62 @@
+import scipy.io.wavfile #for sound file
+import pydub #for sound file
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+#music folder
+temp_folder="D:\\PythonProjects\\"
+#test mp3 file
+mp3_file="Hardkiss10.mp3"
+
+#read mp3 file
+mp3 = pydub.AudioSegment.from_mp3(temp_folder+mp3_file)
+#convert to wav
+mp3.export(temp_folder+"testfile.wav", format="wav")
+#read wav file
+rate,audData=scipy.io.wavfile.read(temp_folder+"testfile.wav")
+
+print("The sampling rate - "+str(rate))
+print("The total number of data - "+str(audData.shape[0]))
+print("The number of channels (i.e. is it mono or stereo) is - "+str(audData.shape[1]))
+print("The wav length is "+str(audData.shape[0] / rate)+" seconds")
+
+#create a time variable in seconds
+time = np.arange(0, float(audData.shape[0]), 1)/rate
+
+#wav number of channels
+channel1=audData[:,0] #left
+channel2=audData[:,1] #right
+
+#number of dwt db3
+cA1, cD1 = pywt.dwt(channel1, 'db3')
+cA2, cD2 = pywt.dwt(cA1, 'db3')
+cA3, cD3 = pywt.dwt(cA2, 'db3')
+cA4, cD4 = pywt.dwt(cA3, 'db3')
+cA5, cD5 = pywt.dwt(cA4, 'db3')
+cA6, cD6 = pywt.dwt(cA5, 'db3')
+cA7, cD7 = pywt.dwt(cA6, 'db3')
+
+#compress time to cA7
+time_compress = time[::128]
+
+#prints
+print("The total number of channel1")
+print(len(channel1))
+print("The total number of 7 DWT")
+print(len(cA7))
+print("Сompression of channel1 after 7 dwt db3")
+print(len(channel1)/len(cA7))
+
+
+#plot
+plt.figure(1)
+plt.subplot(211)
+plt.plot(time_compress, cA7[4:], linewidth=0.5, alpha=1, color='#ff7f00')
+plt.xlabel('Час (с)')
+plt.ylabel('Амплітуда')
+plt.subplot(212)
+plt.plot(time, channel1, linewidth=0.5, alpha=1, color='#ff7f00')
+plt.xlabel('Час (с)')
+plt.ylabel('Амплітуда')
+plt.show()
