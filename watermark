@@ -75,3 +75,9 @@ print("Delta mass0 and mass0+watermark after dwt - "+str(delta))
 
 #channel1 with mass_decompoz
 channel1 = np.hstack((channel1[:peaks_massive[0]],mass_decompoz,channel1[peaks_massive[0]+len(mass_decompoz):]))
+
+#return audiodata
+audData[:,0]=channel1
+
+#save new data as watermark_audio.wav
+scipy.io.wavfile.write("watermark_audio.wav", rate, audData)
