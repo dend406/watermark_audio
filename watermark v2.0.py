@@ -3,9 +3,11 @@ import pydub  # for sound file
 import numpy as np
 import pywt
 from scipy.signal import find_peaks
+import matplotlib.pyplot as plt
 
+watermark = np.array([10,0,0,0,0,0,10,0,10,10,10,10,0,0,0,0,10,0,0,0,0,10,10,0,0,0,0,10,0,0,0,10,10,0])
 def dwt_function():
-    global channel1
+    global channel1, watermark
     for i in range(0, len(peaks_massive)):
         # dwt with mass0
         cA1, cD1 = pywt.dwt(dic_mass["mass" + str(i)], 'db2')
@@ -13,15 +15,9 @@ def dwt_function():
         cA3, cD3 = pywt.dwt(cA2, 'db2')
         cA4, cD4 = pywt.dwt(cA3, 'db2')
         cA5, cD5 = pywt.dwt(cA4, 'db2')
-        cA6, cD6 = pywt.dwt(cA5, 'db2')
-        cA7, cD7 = pywt.dwt(cA6, 'db2')
-        # massive of watemark
-        watermark = np.linspace(10, 10, num=len(cD7))
         # add watermark and cD7
-        cD7 = cD7 + watermark
+        cD5 = cD5 + watermark
         # decompozition
-        cA6 = pywt.idwt(cA7, cD7, 'db2')
-        cA5 = pywt.idwt(cA6, cD6, 'db2')
         cA4 = pywt.idwt(cA5, cD5, 'db2')
         cA3 = pywt.idwt(cA4, cD4, 'db2')
         cA2 = pywt.idwt(cA3, cD3, 'db2')
@@ -29,7 +25,7 @@ def dwt_function():
         mass_decompoz = pywt.idwt(cA1[:-1], cD1, 'db2')
         # channel1 with mass_decompoz
         channel1 = np.hstack((channel1[:peaks_massive[i]],mass_decompoz,channel1[peaks_massive[i]+len(mass_decompoz):]))
-        print(dic_mass["mass" + str(i)])
+
 
     return channel1
 
@@ -54,6 +50,7 @@ print("The wav length is " + str(audData.shape[0] / rate) + " seconds")
 
 channel1 = audData[:, 0]  # left
 channel2 = audData[:, 1]  # right
+audData[:, 1] = audData[:, 0]
 
 # find peaks with distance
 peaks = find_peaks(channel1, distance=100000)
@@ -71,10 +68,25 @@ dic_mass = {}
 for i in range(0, len(peaks_massive)):
     dic_mass["mass" + str(i)] = channel1[peaks_massive[i]:peaks_massive[i] + len_array]
 
+for i in range(0, len(peaks_massive)):
+    dic_mass["mas2s" + str(i)] = channel2[peaks_massive[i]:peaks_massive[i] + len_array]
+
 dwt_function()
 
 # return audiodata
 audData[:, 0] = channel1
 
 # save new data as watermark_audio.wav
-scipy.io.wavfile.write("watermark_audio.wav", rate, audData)
+scipy.io.wavfile.write("D:\\PythonProjects\\watermark_audio1123.wav", rate, audData)
+
+print(dic_mass["mass0"]-dic_mass["mas2s0"])
+print(dic_mass["mass0"])
+print(dic_mass["mas2s0"])
+
+
+#plot
+plt.figure(1)
+plt.plot(watermark*0.1, linewidth=0.5, alpha=1, color='#ff7f00')
+plt.xlabel('Значення')
+plt.ylabel('Двійкова система')
+plt.show()
