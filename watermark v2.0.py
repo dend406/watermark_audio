@@ -79,11 +79,6 @@ audData[:, 0] = channel1
 # save new data as watermark_audio.wav
 scipy.io.wavfile.write("D:\\PythonProjects\\watermark_audio1123.wav", rate, audData)
 
-print(dic_mass["mass0"]-dic_mass["mas2s0"])
-print(dic_mass["mass0"])
-print(dic_mass["mas2s0"])
-
-
 #plot
 plt.figure(1)
 plt.plot(watermark*0.1, linewidth=0.5, alpha=1, color='#ff7f00')
